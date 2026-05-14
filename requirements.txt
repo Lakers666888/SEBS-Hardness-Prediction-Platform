@@ -1,0 +1,11 @@
+flask
+flask-cors
+pandas
+numpy
+matplotlib
+seaborn
+scikit-learn
+shap
+xgboost
+catboost
+openpyxl

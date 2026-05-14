@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEBS 智能分析平台架构图</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', Roboto, sans-serif;
+            background: linear-gradient(145deg, #f0f2f5 0%, #e6e9f0 100%);
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .architecture {
+            max-width: 1400px;
+            width: 100%;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2rem;
+            padding: 1.5rem;
+            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.2);
+            backdrop-filter: blur(2px);
+        }
+
+        /* 通用卡片样式 */
+        .card {
+            background: #fff;
+            border-radius: 1rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: #eef2ff;
+            padding: 0.8rem 1rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border-bottom: 2px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-content {
+            padding: 1rem;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #1e293b;
+        }
+
+        /* 用户层区域 */
+        .user-layer {
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .layer-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #2c3e66;
+        }
+
+        .user-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.2rem;
+        }
+
+        /* 后端层 */
+        .backend-layer {
+            margin-top: 2rem;
+            position: relative;
+        }
+
+        .backend-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.2rem;
+            margin-top: 0.5rem;
+        }
+
+        /* 箭头连接线（伪元素） */
+        .flow-arrow {
+            text-align: center;
+            margin: 1rem 0 0.5rem;
+            font-size: 1.2rem;
+            color: #3b82f6;
+            font-weight: bold;
+        }
+
+        .flow-arrow i {
+            margin: 0 0.5rem;
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #94a3b8, transparent);
+            margin: 1.5rem 0;
+        }
+
+        /* 颜色区分 */
+        .user-card .card-header {
+            background: #dcfce7;
+            border-bottom-color: #86efac;
+        }
+
+        .backend-card .card-header {
+            background: #ffe4e2;
+            border-bottom-color: #fbc4c0;
+        }
+
+        .sub-card {
+            background: #f8fafc;
+            border-radius: 0.8rem;
+            padding: 0.8rem;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: #334155;
+        }
+
+        .sub-card ul {
+            padding-left: 1.2rem;
+            list-style-type: none;
+        }
+
+        .sub-card li {
+            margin: 0.3rem 0;
+            position: relative;
+            padding-left: 1rem;
+        }
+
+        .sub-card li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #3b82f6;
+            font-weight: bold;
+        }
+
+        i.fa, i.far {
+            width: 1.2rem;
+        }
+
+        /* 响应式 */
+        @media (max-width: 800px) {
+            body {
+                padding: 1rem;
+            }
+            .user-cards, .backend-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 整体标题 */
+        .main-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .subtitle {
+            text-align: center;
+            color: #475569;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+<div class="architecture">
+    <div class="main-title">
+        <i class="fas fa-chart-line"></i> SEBS 智能分析平台
+    </div>
+    <div class="subtitle">
+        基于 B/S 架构的「上传 → 分析 → 解读」闭环，无需编程即可获得工艺优化建议
+    </div>
+
+    <!-- 用户层 -->
+    <div class="user-layer">
+        <div class="layer-title">
+            <i class="fas fa-desktop"></i> 用户层 · 浏览器前端
+        </div>
+        <div class="user-cards">
+            <!-- 文件上传 -->
+            <div class="card user-card">
+                <div class="card-header">
+                    <i class="fas fa-cloud-upload-alt"></i> 文件上传
+                </div>
+                <div class="card-content">
+                    <div class="sub-card">
+                        <ul>
+                            <li>点击 / 拖拽上传</li>
+                            <li>支持 .xlsx / .xls</li>
+                            <li>文件大小 ≤ 50MB</li>
+                            <li>自动校验必需列</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- 分析控制 -->
+            <div class="card user-card">
+                <div class="card-header">
+                    <i class="fas fa-microchip"></i> 分析控制
+                </div>
+                <div class="card-content">
+                    <div class="sub-card">
+                        <ul>
+                            <li>开始分析 / 重置</li>
+                            <li>深色模式切换</li>
+                            <li>加载状态提示</li>
+                            <li>超时控制（120s）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- 结果展示 -->
+            <div class="card user-card">
+                <div class="card-header">
+                    <i class="fas fa-chart-pie"></i> 结果展示
+                </div>
+                <div class="card-content">
+                    <div class="sub-card">
+                        <ul>
+                            <li>性能指标卡片（R² / MAE）</li>
+                            <li>14 张分析图表</li>
+                            <li>按类别折叠分组</li>
+                            <li>实时渲染 base64 图片</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- 图表操作与导出 -->
+            <div class="card user-card">
+                <div class="card-header">
+                    <i class="fas fa-download"></i> 图表操作
+                </div>
+                <div class="card-content">
+                    <div class="sub-card">
+                        <ul>
+                            <li>全屏查看 / 单图下载</li>
+                            <li>打包下载所有图片 (ZIP)</li>
+                            <li>深色模式记忆</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 数据流箭头：用户 → 后端 -->
+    <div class="flow-arrow">
+        <i class="fas fa-arrow-down"></i> POST /upload (Excel 文件) <i class="fas fa-arrow-down"></i>
+    </div>
+
+    <!-- 后端层 -->
+    <div class="backend-layer">
+        <div class="layer-title">
+            <i class="fas fa-server"></i> 后端服务层 · Flask (Python)
+        </div>
+        <div class="backend-cards">
+            <!-- 1. 数据预处理 -->
+            <div class="card backend-card">
+                <div class="card-header">
+                    <i class="fas fa-database"></i> 数据预处理
+                </div>
+                <div class="card-content">
+                    <div class="sub-card">
+                        <ul>
+                            <li>Excel 读取 (pandas)</li>
+                            <li>必需列校验 & 缺失值处理</li>
+                            <li>解析 St:Bd:St 质量比</li>
+                            <li>删除唯一值列</li>
+                            <li>特征标准化 (StandardScaler)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- 2. 模型训练与对比 -->
+            <div class="card backend-card">
+                <div class="card-header">
+                    <i class="fas fa-chart-bar"></i> 模型训练与对比
+                </div>
+                <div class="card-content">
+                    <div class="sub-card">
+                        <ul>
+                            <li>13 种回归模型</li>
+                            <li>留一法交叉验证 (LOOCV)</li>
+                            <li>计算 R² / MAE</li>
+                            <li>生成性能饼图</li>
+                            <li>选出最优模型 (GradientBoosting)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- 3. 参数优化 -->
+            <div class="card backend-card">
+                <div class="card-header">
+                    <i class="fas fa-sliders-h"></i> 参数优化
+                </div>
+                <div class="card-content">
+                    <div class="sub-card">
+                        <ul>
+                            <li>学习率扫描 (0.01 ~ 1.0)</li>
+                            <li>固定树数量 (100)</li>
+                            <li>绘制 R² 折线图</li>
+                            <li>确定最佳学习率</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- 4. 模型解释 -->
+            <div class="card backend-card">
+                <div class="card-header">
+                    <i class="fas fa-chart-line"></i> 模型解释
+                </div>
+                <div class="card-content">
+                    <div class="sub-card">
+                        <ul>
+                            <li>SHAP 条形图 / 蜂群图 / 瀑布图</li>
+                            <li>SHAP 依赖图 / 热力图 / 交互图</li>
+                            <li>一维 PDP / ICE 曲线</li>
+                            <li>二维 PDP 等高线图</li>
+                            <li>特征重要性分析</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- 5. 结果封装 -->
+            <div class="card backend-card">
+                <div class="card-header">
+                    <i class="fas fa-code"></i> 结果封装
+                </div>
+                <div class="card-content">
+                    <div class="sub-card">
+                        <ul>
+                            <li>将图表转为 base64 编码</li>
+                            <li>打包性能指标与图表列表</li>
+                            <li>返回 JSON 响应</li>
+                            <li>错误捕获与日志记录</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 返回箭头（后端 → 前端） -->
+    <div class="flow-arrow" style="margin-top: 1rem;">
+        <i class="fas fa-arrow-up"></i> 返回 JSON (metrics + base64 图表) <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <!-- 底部说明 -->
+    <div class="divider"></div>
+    <div style="text-align: center; color: #4b5563; font-size: 0.75rem; margin-top: 1rem;">
+        <i class="fas fa-sync-alt"></i> 全流程自动完成，无需人工干预 • 模型解释结果指导工艺优化
+    </div>
+</div>
+</body>
+</html>

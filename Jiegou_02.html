@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>SEBS 平台 ER 图 - 实体关系清晰版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f0f2f5 0%, #e6e9f0 100%);
+            font-family: 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', Roboto, sans-serif;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .er-container {
+            max-width: 1400px;
+            width: 100%;
+            background: rgba(255,255,255,0.4);
+            border-radius: 2rem;
+            padding: 2rem 1rem 3rem 1rem;
+            backdrop-filter: blur(2px);
+            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.1);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 2rem;
+        }
+
+        /* 网格布局：4列 × 2行，间距充足 */
+        .entity-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(240px, 1fr));
+            gap: 2rem 2rem;
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* 实体卡片 */
+        .entity {
+            background: white;
+            border-radius: 1.2rem;
+            box-shadow: 0 12px 24px -8px rgba(0,0,0,0.2);
+            padding: 1rem 1rem 1.2rem;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-top: 5px solid #3b82f6;
+            position: relative;
+            backdrop-filter: blur(0);
+        }
+
+        .entity:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.25);
+        }
+
+        .entity-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: #eef2ff;
+            display: inline-block;
+            padding: 0.2rem 1rem;
+            border-radius: 2rem;
+            margin-bottom: 0.8rem;
+            color: #1e40af;
+        }
+
+        .entity-attributes {
+            font-size: 0.75rem;
+            color: #334155;
+            text-align: left;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 0.6rem;
+            margin-top: 0.4rem;
+        }
+
+        .entity-attributes p {
+            margin: 0.25rem 0;
+            line-height: 1.4;
+        }
+
+        .entity-attributes .pk {
+            font-weight: 700;
+            color: #2563eb;
+        }
+
+        /* SVG 连线区域 */
+        .diagram {
+            position: relative;
+            min-height: 580px;
+            margin-top: 1rem;
+        }
+
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .relation-label {
+            position: absolute;
+            background: rgba(255, 250, 210, 0.95);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            white-space: nowrap;
+            border: 1px solid #bfdbfe;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            z-index: 3;
+            pointer-events: none;
+            font-family: monospace;
+        }
+
+        /* 图例 */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            background: rgba(255,255,255,0.7);
+            padding: 0.8rem 1.5rem;
+            border-radius: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-color {
+            width: 24px;
+            height: 2px;
+            background: #3b82f6;
+        }
+
+        .legend-color-diamond {
+            width: 10px;
+            height: 10px;
+            background: #f97316;
+            transform: rotate(45deg);
+        }
+
+        @media (max-width: 1000px) {
+            .entity-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+            body {
+                padding: 1rem;
+            }
+        }
+        @media (max-width: 640px) {
+            .entity-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="er-container">
+    <div class="title">📊 SEBS 智能分析平台 · 实体关系图 (ER)</div>
+    <div class="diagram" id="diagramArea">
+        <!-- 实体网格：4列2行，手工指定顺序 -->
+        <div class="entity-grid" id="entityGrid">
+            <!-- 第一行 -->
+            <div class="entity" data-id="exp">
+                <div class="entity-name">📄 实验记录</div>
+                <div class="entity-attributes">
+                    <p><span class="pk">🔑 实验ID (PK)</span></p>
+                    <p>📅 日期 / 👤 操作人</p>
+                </div>
+            </div>
+            <div class="entity" data-id="param">
+                <div class="entity-name">⚙️ 工艺参数集</div>
+                <div class="entity-attributes">
+                    <p><span class="pk">🔑 参数集ID (PK)</span></p>
+                    <p>St:Bd:St 质量比</p>
+                    <p>单体浓度 / 温度</p>
+                    <p>催化剂 / 加氢条件</p>
+                </div>
+            </div>
+            <div class="entity" data-id="hardness">
+                <div class="entity-name">🎯 硬度实测值</div>
+                <div class="entity-attributes">
+                    <p><span class="pk">🔑 测量ID (PK)</span></p>
+                    <p>📊 硬度数值</p>
+                    <p>📏 断裂伸长率</p>
+                </div>
+            </div>
+            <div class="entity" data-id="feature">
+                <div class="entity-name">📐 特征矩阵</div>
+                <div class="entity-attributes">
+                    <p><span class="pk">🔑 样本ID (FK)</span></p>
+                    <p>标准化特征 (39维)</p>
+                    <p>数值矩阵</p>
+                </div>
+            </div>
+
+            <!-- 第二行 -->
+            <div class="entity" data-id="model">
+                <div class="entity-name">🤖 模型库</div>
+                <div class="entity-attributes">
+                    <p><span class="pk">🔑 模型ID (PK)</span></p>
+                    <p>13种回归算法</p>
+                    <p>超参数配置</p>
+                </div>
+            </div>
+            <div class="entity" data-id="metric">
+                <div class="entity-name">📈 性能指标</div>
+                <div class="entity-attributes">
+                    <p><span class="pk">🔑 指标ID (PK)</span></p>
+                    <p>R² / MAE</p>
+                    <p>交叉验证得分</p>
+                </div>
+            </div>
+            <div class="entity" data-id="report">
+                <div class="entity-name">📑 分析报告</div>
+                <div class="entity-attributes">
+                    <p><span class="pk">🔑 报告ID (PK)</span></p>
+                    <p>生成时间 / 优化建议</p>
+                    <p>包含 14 张图表</p>
+                </div>
+            </div>
+            <div class="entity" data-id="chart">
+                <div class="entity-name">📊 图表资源</div>
+                <div class="entity-attributes">
+                    <p><span class="pk">🔑 图表ID (PK)</span></p>
+                    <p>SHAP / PDP / 散点图等</p>
+                    <p>base64 编码数据</p>
+                </div>
+            </div>
+        </div>
+
+        <svg id="relationSvg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></svg>
+        <div id="labelsContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item"><div class="legend-color"></div> 实体关系 (方向 →)</div>
+        <div class="legend-item"><div class="legend-color-diamond"></div> 关联 / 生成</div>
+        <div class="legend-item"><span style="background:#eef2ff; padding:2px 8px; border-radius:20px;">PK</span> 主键 &nbsp; <span style="background:#fee2e2;">FK</span> 外键</div>
+    </div>
+</div>
+
+<script>
+    // 获取实体元素和容器
+    const entities = document.querySelectorAll('.entity');
+    const svg = document.getElementById('relationSvg');
+    const labelsContainer = document.getElementById('labelsContainer');
+    const diagramArea = document.getElementById('diagramArea');
+
+    // 实体之间的关系 (from, to, 描述)
+    const relations = [
+        { from: 'exp', to: 'param', label: '1:1 包含' },
+        { from: 'exp', to: 'hardness', label: '1:1 包含' },
+        { from: 'param', to: 'feature', label: '特征提取' },
+        { from: 'hardness', to: 'feature', label: '目标变量' },
+        { from: 'feature', to: 'model', label: '训练/验证' },
+        { from: 'model', to: 'metric', label: '生成' },
+        { from: 'metric', to: 'report', label: '汇总指标' },
+        { from: 'model', to: 'report', label: '最佳模型' },
+        { from: 'report', to: 'chart', label: '包含 (1:N)' },
+        { from: 'chart', to: 'report', label: '所属报告' },
+        { from: 'model', to: 'chart', label: '解释性图表' }
+    ];
+
+    // 获取元素中心坐标（相对于 diagramArea）
+    function getCenter(element, containerRect) {
+        const rect = element.getBoundingClientRect();
+        const parentRect = diagramArea.getBoundingClientRect();
+        return {
+            x: rect.left + rect.width / 2 - parentRect.left,
+            y: rect.top + rect.height / 2 - parentRect.top
+        };
+    }
+
+    function drawLines() {
+        const parentRect = diagramArea.getBoundingClientRect();
+        svg.innerHTML = '';
+        labelsContainer.innerHTML = '';
+
+        const entityMap = {};
+        entities.forEach(entity => {
+            const id = entity.getAttribute('data-id');
+            const center = getCenter(entity, parentRect);
+            entityMap[id] = { element: entity, center };
+        });
+
+        relations.forEach(rel => {
+            const from = entityMap[rel.from];
+            const to = entityMap[rel.to];
+            if (!from || !to) return;
+
+            const start = from.center;
+            const end = to.center;
+
+            // 画线（实线，较细）
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', start.x);
+            line.setAttribute('y1', start.y);
+            line.setAttribute('x2', end.x);
+            line.setAttribute('y2', end.y);
+            line.setAttribute('stroke', '#3b82f6');
+            line.setAttribute('stroke-width', '1.8');
+            line.setAttribute('stroke-dasharray', '4 3');
+            svg.appendChild(line);
+
+            // 画箭头（终点处三角形，缩小一点）
+            const angle = Math.atan2(end.y - start.y, end.x - start.x);
+            const arrowSize = 7;
+            const arrowX = end.x - arrowSize * 0.7 * Math.cos(angle);
+            const arrowY = end.y - arrowSize * 0.7 * Math.sin(angle);
+            const p1 = { x: arrowX + arrowSize * 0.5 * Math.sin(angle), y: arrowY - arrowSize * 0.5 * Math.cos(angle) };
+            const p2 = { x: arrowX - arrowSize * 0.5 * Math.sin(angle), y: arrowY + arrowSize * 0.5 * Math.cos(angle) };
+            const p3 = { x: end.x, y: end.y };
+            const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            arrow.setAttribute('points', `${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y}`);
+            arrow.setAttribute('fill', '#3b82f6');
+            svg.appendChild(arrow);
+
+            // 添加标签（在线段中点，偏移避免覆盖）
+            const midX = (start.x + end.x) / 2;
+            const midY = (start.y + end.y) / 2;
+            // 根据角度简单偏移，让标签不压在线上
+            let offsetX = 0, offsetY = 0;
+            if (Math.abs(angle) < Math.PI/4) offsetY = 12;
+            else if (Math.abs(angle) > Math.PI/4*3) offsetY = -12;
+            else offsetX = 12 * (Math.cos(angle) > 0 ? 1 : -1);
+
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'relation-label';
+            labelDiv.textContent = rel.label;
+            labelDiv.style.left = `${midX + offsetX}px`;
+            labelDiv.style.top = `${midY + offsetY}px`;
+            labelsContainer.appendChild(labelDiv);
+        });
+    }
+
+    // 监听窗口变化和网格重绘
+    window.addEventListener('resize', () => setTimeout(drawLines, 100));
+    window.addEventListener('load', () => setTimeout(drawLines, 200));
+    if (window.ResizeObserver) {
+        const observer = new ResizeObserver(() => drawLines());
+        observer.observe(diagramArea);
+    }
+    drawLines();
+</script>
+</body>
+</html>
